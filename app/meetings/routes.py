@@ -15,6 +15,7 @@ from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from app.extensions import db
 from app.models import Meeting, SystemConfig
+from app.utils.plan_limits import check_upload_quota, increment_upload_usage, get_plan_retention_days
 
 meetings_bp = Blueprint("meetings", __name__, url_prefix="/meetings")
 
@@ -43,10 +44,22 @@ def list_meetings():
     )
 
 
+@meetings_bp.route("/record")
+@login_required
+def record():
+    return render_template("meetings/record.html")
+
+
 @meetings_bp.route("/upload", methods=["GET", "POST"])
 @login_required
 def upload():
     if request.method == "POST":
+        # Quota check
+        allowed, msg, uploads_used, uploads_limit = check_upload_quota(current_user)
+        if not allowed:
+            flash(msg, "error")
+            return redirect(url_for("billing.index"))
+
         if "file" not in request.files:
             flash("No file selected.", "error")
             return redirect(request.url)
@@ -73,7 +86,7 @@ def upload():
         file.save(file_path)
         file_size = os.path.getsize(file_path)
 
-        retention_days = int(SystemConfig.get("meeting_retention_days", "30"))
+        retention_days = get_plan_retention_days(current_user)
         expires_at = datetime.now(timezone.utc) + timedelta(days=retention_days)
 
         meeting = Meeting(
@@ -93,6 +106,9 @@ def upload():
         task = process_meeting.delay(meeting.id)
         meeting.task_id = task.id
         meeting.status = "processing"
+        db.session.commit()
+
+        increment_upload_usage(current_user)
         db.session.commit()
 
         flash(f'Meeting "{title}" uploaded and queued for processing.', "success")

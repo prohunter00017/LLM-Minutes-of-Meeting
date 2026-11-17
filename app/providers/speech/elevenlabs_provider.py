@@ -10,7 +10,7 @@ class ElevenLabsProvider(BaseSpeechProvider):
       - Multichannel:              `response.transcripts[]` (one per channel)
 
     When diarization is enabled, word-level speaker IDs are used to produce a
-    speaker-labelled transcript that helps the LLM generate better MoM.
+    speaker-labelled transcript that helps the LLM generate better meeting minutes.
     """
 
     provider_name = "elevenlabs"
@@ -29,15 +29,54 @@ class ElevenLabsProvider(BaseSpeechProvider):
         client = ElevenLabs(api_key=self.api_key)
 
         # Pass the open file handle (not bytes) as the SDK expects
-        with open(audio_path, "rb") as audio_file:
-            response = client.speech_to_text.convert(
-                file=audio_file,
-                model_id="scribe_v2",
-                diarize=True,               # speaker identification
-                timestamps_granularity="word",  # needed to sort multichannel words
-            )
+        try:
+            with open(audio_path, "rb") as audio_file:
+                response = client.speech_to_text.convert(
+                    file=audio_file,
+                    model_id="scribe_v2",
+                    diarize=True,               # speaker identification
+                    timestamps_granularity="word",  # needed to sort multichannel words
+                )
+        except Exception as exc:
+            raise self._wrap_auth_error(exc) from exc
 
         return self._extract_transcript(response)
+
+    @staticmethod
+    def _wrap_auth_error(exc: Exception) -> Exception:
+        """Turn an opaque 401 ApiError into an actionable message."""
+        status = getattr(exc, "status_code", None)
+        body = getattr(exc, "body", None)
+        detail = ""
+        if isinstance(body, dict):
+            d = body.get("detail") or {}
+            if isinstance(d, dict):
+                detail = str(d.get("message") or d.get("status") or "")
+
+        if status == 401:
+            # ElevenLabs returns 401 for BOTH bad keys and exhausted quota.
+            if "quota" in detail.lower() or "character" in detail.lower():
+                return RuntimeError(
+                    "ElevenLabs quota exhausted (401 quota_exceeded). "
+                    "The account has no speech-to-text characters left. "
+                    "Upgrade the plan or add credits at "
+                    "https://elevenlabs.io/app/settings/billing, or switch "
+                    "SPEECH_PROVIDER to another provider."
+                )
+            return RuntimeError(
+                "ElevenLabs API key was rejected (401 invalid_api_key). "
+                "The key in your .env is invalid, expired or revoked. "
+                "Generate a new key at https://elevenlabs.io/app/settings/api-keys "
+                "and update ELEVENLABS_API_KEY, then redeploy."
+            )
+        if status == 403:
+            return RuntimeError(
+                "ElevenLabs denied access (403). The key is valid but lacks "
+                "speech-to-text (Scribe) permission, or the account has no credits."
+            )
+        if status == 429:
+            return RuntimeError("ElevenLabs rate limit or quota exhausted (429).")
+        return exc
 
     # ── Response parsing ────────────────────────────────────────────────────
 

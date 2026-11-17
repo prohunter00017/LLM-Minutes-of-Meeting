@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="IntelliForge turns meeting recordings into professional Minutes of Meeting. AI transcription, speaker labels, structured summaries, action items — delivered in minutes." />
+  <meta name="keywords" content="meeting minutes, AI transcription, speech to text, meeting notes, audio transcription, voice recording" />
+  <meta name="theme-color" content="#4f46e5" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="IntelliForge — AI-Powered Minutes of Meeting" />
+  <meta property="og:description" content="Upload or record meetings and get professional AI-generated minutes instantly. Speaker labels, summaries, action items — all automated." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="{{ request.url_root }}" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="IntelliForge — AI-Powered Minutes of Meeting" />
+  <meta name="twitter:description" content="Upload or record meetings and get professional AI-generated minutes instantly." />
+
+  <title>IntelliForge — AI-Powered Minutes of Meeting</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#eef2ff', 100:'#e0e7ff', 200:'#c7d2fe', 500:'#6366f1', 600:'#4f46e5', 700:'#4338ca' }
+          },
+          fontFamily: { sans: ['Inter','ui-sans-serif','system-ui','-apple-system','sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
+</head>
+
+<body class="font-sans antialiased text-gray-900 bg-white">
+
+  <!-- ═══════════════════════ NAVIGATION ═══════════════════════════════════ -->
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a href="{{ url_for('dashboard.index') }}" class="flex items-center gap-2.5">
+          <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <span class="text-lg font-bold text-gray-900">IntelliForge</span>
+        </a>
+
+        <!-- Desktop links -->
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#features" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Features</a>
+          <a href="#how-it-works" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">How it works</a>
+          <a href="{{ url_for('demo.index') }}" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Try Demo</a>
+        </div>
+
+        <!-- CTA -->
+        <div class="flex items-center gap-3">
+          <a href="{{ url_for('auth.login') }}" class="hidden sm:inline-flex text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Log in</a>
+          <a href="{{ url_for('auth.register') }}" class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors shadow-sm">
+            Sign up free
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════ HERO ═══════════════════════════════════════ -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+      <div class="max-w-3xl mx-auto text-center">
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 leading-tight">
+          Turn Recordings into<br class="hidden sm:block" />
+          <span class="text-brand-600">Professional Minutes</span> Instantly
+        </h1>
+        <p class="mt-6 text-lg sm:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
+          Record live from your browser or upload any meeting recording. AI handles the rest — speaker-labelled transcripts, structured summaries, action items, and decisions — delivered in minutes, not hours.
+        </p>
+        <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="{{ url_for('demo.index') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-base font-semibold text-brand-700 bg-white border-2 border-brand-200 rounded-xl hover:border-brand-400 hover:bg-brand-50 transition-all shadow-sm">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Try it free — no account needed
+          </a>
+          <a href="{{ url_for('auth.register') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-base font-semibold text-white bg-brand-600 rounded-xl hover:bg-brand-700 transition-all shadow-lg shadow-brand-200">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Get started for free
+          </a>
+        </div>
+        <p class="mt-4 text-sm text-gray-400">No credit card required. Free plan includes full features.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ FEATURES ═══════════════════════════════════ -->
+  <section id="features" class="py-20 lg:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <h2 class="text-3xl font-bold text-gray-900">Everything you need for perfect meeting minutes</h2>
+        <p class="mt-4 text-lg text-gray-500">Stop scribbling notes. Start focusing on the conversation.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Feature 1 -->
+        <div class="group rounded-2xl border border-gray-100 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+            <svg class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">AI Transcription</h3>
+          <p class="text-gray-500 leading-relaxed text-sm">Upload audio or video in any major format. Our AI transcribes with speaker labels so you know exactly who said what.</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="group rounded-2xl border border-gray-100 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+            <svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Structured Summaries</h3>
+          <p class="text-gray-500 leading-relaxed text-sm">Get professionally formatted Minutes of Meeting with summaries, attendees, key discussion points, decisions, and action items.</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="group rounded-2xl border border-gray-100 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+            <svg class="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Speaker Diarization</h3>
+          <p class="text-gray-500 leading-relaxed text-sm">Automatically identifies different speakers. Decisions and action items are correctly attributed to the right people.</p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="group rounded-2xl border border-gray-100 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+            <svg class="w-6 h-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Background Processing</h3>
+          <p class="text-gray-500 leading-relaxed text-sm">Upload once and walk away. We process everything in the background and notify you when your minutes are ready.</p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="group rounded-2xl border border-gray-100 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 bg-cyan-50 rounded-xl flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+            <svg class="w-6 h-6 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Auto Cleanup</h3>
+          <p class="text-gray-500 leading-relaxed text-sm">Raw recordings are automatically deleted after your retention period. Your transcripts and minutes are preserved securely.</p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="group rounded-2xl border border-gray-100 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 bg-violet-50 rounded-xl flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+            <svg class="w-6 h-6 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Multiple Languages</h3>
+          <p class="text-gray-500 leading-relaxed text-sm">Works with English and Indian languages. Choose from top-tier speech providers like Deepgram, AssemblyAI, ElevenLabs, and Sarvam.</p>
+        </div>
+
+        <!-- Feature 7 -->
+        <div class="group rounded-2xl border border-gray-100 bg-white p-8 shadow-sm hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+            <svg class="w-6 h-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Live Voice Recording</h3>
+          <p class="text-gray-500 leading-relaxed text-sm">Don't have a recording? Record directly from your browser with a live waveform visualizer. Pause, resume, and save — all without leaving the app.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ SCREENSHOTS ═══════════════════════════════════ -->
+  <section class="py-20 lg:py-24 bg-slate-50 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <h2 class="text-3xl font-bold text-gray-900">See it in action</h2>
+        <p class="mt-4 text-lg text-gray-500">Beautiful, organized minutes generated while you focus on the conversation.</p>
+      </div>
+
+      <!-- Browser mockup 1: Dashboard -->
+      <div class="max-w-5xl mx-auto mb-12">
+        <div class="rounded-xl bg-gray-900 shadow-2xl ring-1 ring-gray-900/10 overflow-hidden">
+          <!-- Browser bar -->
+          <div class="flex items-center gap-2 px-4 py-3 bg-gray-800 border-b border-gray-700">
+            <div class="flex gap-1.5">
+              <div class="w-3 h-3 rounded-full bg-red-400"></div>
+              <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+              <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
+            </div>
+            <div class="flex-1 mx-4">
+              <div class="max-w-md mx-auto h-6 bg-gray-700 rounded-md flex items-center justify-center text-xs text-gray-400">intelliforgesystems.com/dashboard</div>
+            </div>
+          </div>
+          <!-- Content mockup -->
+          <div class="bg-slate-50 p-6 lg:p-10">
+            <div class="grid lg:grid-cols-4 gap-4 mb-8">
+              <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                <p class="text-xs font-medium text-gray-400 uppercase">Total</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1">24</p>
+              </div>
+              <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                <p class="text-xs font-medium text-gray-400 uppercase">Completed</p>
+                <p class="text-2xl font-bold text-emerald-600 mt-1">18</p>
+              </div>
+              <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                <p class="text-xs font-medium text-gray-400 uppercase">Processing</p>
+                <p class="text-2xl font-bold text-blue-600 mt-1">3</p>
+              </div>
+              <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                <p class="text-xs font-medium text-gray-400 uppercase">Failed</p>
+                <p class="text-2xl font-bold text-red-500 mt-1">0</p>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+              <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <p class="font-semibold text-gray-900 text-sm">Recent Meetings</p>
+                <span class="text-xs text-brand-600 font-medium">View all &rarr;</span>
+              </div>
+              <table class="w-full text-sm">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="text-left px-6 py-2.5 text-xs font-semibold text-gray-400 uppercase">Title</th>
+                    <th class="text-left px-6 py-2.5 text-xs font-semibold text-gray-400 uppercase">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                  <tr><td class="px-6 py-3"><span class="font-medium text-gray-900">Q4 Planning</span></td><td class="px-6 py-3"><span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Completed</span></td></tr>
+                  <tr><td class="px-6 py-3"><span class="font-medium text-gray-900">Design Review</span></td><td class="px-6 py-3"><span class="inline-flex items-center gap-1 text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">Processing</span></td></tr>
+                  <tr><td class="px-6 py-3"><span class="font-medium text-gray-900">Client Sync</span></td><td class="px-6 py-3"><span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Completed</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Browser mockup 2: Minutes Result (offset) -->
+      <div class="max-w-5xl mx-auto ml-auto mr-4 lg:mr-0 lg:translate-x-12">
+        <div class="rounded-xl bg-gray-900 shadow-2xl ring-1 ring-gray-900/10 overflow-hidden">
+          <div class="flex items-center gap-2 px-4 py-3 bg-gray-800 border-b border-gray-700">
+            <div class="flex gap-1.5">
+              <div class="w-3 h-3 rounded-full bg-red-400"></div>
+              <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+              <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
+            </div>
+            <div class="flex-1 mx-4">
+              <div class="max-w-md mx-auto h-6 bg-gray-700 rounded-md flex items-center justify-center text-xs text-gray-400">intelliforgesystems.com/meetings/12</div>
+            </div>
+          </div>
+          <div class="bg-white p-6 lg:p-10">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <p class="text-xl font-bold text-gray-900">Q4 Product Planning</p>
+                <p class="text-sm text-gray-400 mt-0.5">recording.webm · 12.4 MB</p>
+              </div>
+              <span class="inline-flex items-center gap-1 text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">Completed</span>
+            </div>
+            <div class="border border-gray-100 rounded-xl overflow-hidden">
+              <div class="flex border-b border-gray-100 bg-gray-50">
+                <div class="flex-1 py-3 text-center text-sm font-semibold text-brand-600 border-b-2 border-brand-600">Minutes</div>
+                <div class="flex-1 py-3 text-center text-sm font-semibold text-gray-500">Transcript</div>
+              </div>
+              <div class="p-6 space-y-4 text-sm text-gray-700 leading-relaxed">
+                <h3 class="font-bold text-gray-900 text-base">Meeting Summary</h3>
+                <p class="text-gray-600">The team aligned on Q4 priorities, focusing on AI transcription improvements and enterprise onboarding. Revenue targets were confirmed at $2.5M ARR.</p>
+                <h3 class="font-bold text-gray-900 text-base mt-4">Attendees</h3>
+                <p>Sarah Chen, VP Engineering · David Park, Product Lead · Aisha Patel, Design</p>
+                <h3 class="font-bold text-gray-900 text-base mt-4">Action Items</h3>
+                <table class="w-full text-sm border-collapse mt-2">
+                  <thead>
+                    <tr class="bg-gray-50">
+                      <th class="text-left p-2 border border-gray-200 font-semibold text-gray-700">Action</th>
+                      <th class="text-left p-2 border border-gray-200 font-semibold text-gray-700">Owner</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="p-2 border border-gray-200">Ship diarization beta</td><td class="p-2 border border-gray-200">Sarah Chen</td></tr>
+                    <tr><td class="p-2 border border-gray-200">Update pricing page</td><td class="p-2 border border-gray-200">David Park</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ TESTIMONIALS ═══════════════════════════════ -->
+  <section class="py-20 lg:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <h2 class="text-3xl font-bold text-gray-900">Loved by teams who ship</h2>
+        <p class="mt-4 text-lg text-gray-500">Join professionals who stopped taking notes and started leading conversations.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="rounded-2xl border border-gray-100 bg-slate-50 p-8">
+          <div class="flex items-center gap-1 mb-4">
+            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          </div>
+          <p class="text-gray-700 text-sm leading-relaxed mb-6">"IntelliForge cut our post-meeting busywork by 90%. Our product team now gets structured minutes within minutes of ending a call — action items, decisions, everything."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-sm font-bold text-brand-600">SP</div>
+            <div>
+              <p class="text-sm font-semibold text-gray-900">Sarah Patel</p>
+              <p class="text-xs text-gray-500">VP Engineering, Nexora</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-gray-100 bg-slate-50 p-8">
+          <div class="flex items-center gap-1 mb-4">
+            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          </div>
+          <p class="text-gray-700 text-sm leading-relaxed mb-6">"The speaker diarization is shockingly accurate. For our multi-lingual team calls, IntelliForge correctly attributes every decision and action item. A game changer."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-sm font-bold text-emerald-600">DL</div>
+            <div>
+              <p class="text-sm font-semibold text-gray-900">David Liu</p>
+              <p class="text-xs text-gray-500">Product Lead, Greenfield Labs</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-gray-100 bg-slate-50 p-8">
+          <div class="flex items-center gap-1 mb-4">
+            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          </div>
+          <p class="text-gray-700 text-sm leading-relaxed mb-6">"I record all my client calls directly in the browser. By the time I grab coffee, the transcript and action items are ready. Best productivity tool we adopted this year."</p>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-sm font-bold text-amber-600">AM</div>
+            <div>
+              <p class="text-sm font-semibold text-gray-900">Aisha Mensah</p>
+              <p class="text-xs text-gray-500">Founder, Raize Studio</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ HOW IT WORKS ═══════════════════════════════ -->
+  <section id="how-it-works" class="py-20 lg:py-24 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <h2 class="text-3xl font-bold text-gray-900">How it works</h2>
+        <p class="mt-4 text-lg text-gray-500">From recording to minutes in three simple steps.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
+        <!-- Step 1 -->
+        <div class="relative">
+          <div class="flex items-center justify-center w-14 h-14 bg-brand-600 text-white rounded-2xl text-xl font-bold shadow-lg mb-6 mx-auto md:mx-0">1</div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center md:text-left">Upload or record</h3>
+          <p class="text-gray-500 text-sm leading-relaxed text-center md:text-left">Drag and drop any audio or video file, or hit the record button and capture your meeting live from the browser.</p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="relative">
+          <div class="flex items-center justify-center w-14 h-14 bg-brand-600 text-white rounded-2xl text-xl font-bold shadow-lg mb-6 mx-auto md:mx-0">2</div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center md:text-left">AI transcribes & summarizes</h3>
+          <p class="text-gray-500 text-sm leading-relaxed text-center md:text-left">Our engine converts speech to text with speaker labels, then uses your chosen AI model to generate structured minutes.</p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="relative">
+          <div class="flex items-center justify-center w-14 h-14 bg-brand-600 text-white rounded-2xl text-xl font-bold shadow-lg mb-6 mx-auto md:mx-0">3</div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2 text-center md:text-left">Get professional minutes</h3>
+          <p class="text-gray-500 text-sm leading-relaxed text-center md:text-left">Review, copy, or share the auto-generated minutes and transcript. Everything is organized and actionable.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ CTA ═══════════════════════════════════════ -->
+  <section class="py-20 lg:py-24 bg-gradient-to-br from-brand-600 to-indigo-700 text-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl sm:text-4xl font-bold mb-6">Ready to save hours every week?</h2>
+      <p class="text-lg text-indigo-100 mb-10 max-w-2xl mx-auto">Join professionals who never write meeting notes again. Try the demo instantly or create a free account in seconds.</p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="{{ url_for('demo.index') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 text-base font-semibold text-brand-700 bg-white rounded-xl hover:bg-gray-50 transition-colors shadow-lg">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Try the demo
+        </a>
+        <a href="{{ url_for('auth.register') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 text-base font-semibold text-white border-2 border-white/30 rounded-xl hover:bg-white/10 transition-colors">
+          Create free account
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ FOOTER ═══════════════════════════════════ -->
+  <footer class="bg-white border-t border-gray-100 py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 bg-brand-600 rounded-md flex items-center justify-center">
+          <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <span class="text-sm font-semibold text-gray-900">IntelliForge</span>
+      </div>
+      <p class="text-sm text-gray-400">© Intelli Forge Systems. Built for teams that value their time.</p>
+      <div class="flex items-center gap-4">
+        <a href="{{ url_for('legal.privacy') }}" class="text-sm text-gray-500 hover:text-gray-700">Privacy</a>
+        <a href="{{ url_for('legal.terms') }}" class="text-sm text-gray-500 hover:text-gray-700">Terms</a>
+        <a href="{{ url_for('legal.contact') }}" class="text-sm text-gray-500 hover:text-gray-700">Contact</a>
+        <a href="{{ url_for('auth.login') }}" class="text-sm text-gray-500 hover:text-gray-700">Log in</a>
+        <a href="{{ url_for('auth.register') }}" class="text-sm text-gray-500 hover:text-gray-700">Sign up</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

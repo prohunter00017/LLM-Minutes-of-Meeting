@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl w-full mx-auto">
+  <h1 class="text-3xl font-bold text-gray-900 mb-6">Privacy Policy</h1>
+  <p class="text-sm text-gray-500 mb-8">Last updated: {{ current_year or 'April 2026' }}</p>
+
+  <div class="prose prose-indigo max-w-none">
+    <p class="text-gray-700 mb-4">
+      Intelli Forge Systems (“we”, “us”, or “our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, store, and safeguard your information when you use our SaaS platform.
+    </p>
+
+    <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-3">1. Information We Collect</h2>
+    <ul class="list-disc list-inside text-gray-700 space-y-1 mb-4">
+      <li><strong>Account data:</strong> username, email address, password hash, role.</li>
+      <li><strong>Payment data:</strong> handled by Stripe. We do not store credit card numbers.</li>
+      <li><strong>Meeting data:</strong> uploaded audio/video files, transcripts, and generated summaries are stored on our servers.</li>
+      <li><strong>Usage data:</strong> upload counts, plan type, subscription status.</li>
+    </ul>
+
+    <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-3">2. How We Use Your Data</h2>
+    <ul class="list-disc list-inside text-gray-700 space-y-1 mb-4">
+      <li>To provide transcription and meeting-summary services.</li>
+      <li>To manage billing and subscriptions.</li>
+      <li>To enforce plan limits and monitor service health.</li>
+      <li>To communicate important updates about the service.</li>
+    </ul>
+
+    <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-3">3. Data Retention</h2>
+    <p class="text-gray-700 mb-4">
+      Meeting files and results are retained according to your subscription plan (7, 30, or 90 days). Expired data is automatically deleted by periodic cleanup tasks.
+    </p>
+
+    <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-3">4. Third-Party Services</h2>
+    <p class="text-gray-700 mb-4">
+      We use Stripe for payments, and AI providers (Deepgram, AssemblyAI, OpenAI-compatible endpoints) for speech-to-text and summarization. Your audio is sent to the speech provider you configure, subject to their privacy policies.
+    </p>
+
+    <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-3">5. Security</h2>
+    <p class="text-gray-700 mb-4">
+      We use industry-standard practices: HTTPS, password hashing (Werkzeug), and containerized deployment. However, no online system is 100% secure.
+    </p>
+
+    <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-3">6. Your Rights</h2>
+    <p class="text-gray-700 mb-4">
+      You may delete your account by contacting support. This removes your user record and orphaned meeting data.
+    </p>
+
+    <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-3">7. Changes</h2>
+    <p class="text-gray-700 mb-4">
+      We may update this policy from time to time. Significant changes will be announced via email or in-app notice.
+    </p>
+
+    <p class="text-gray-700 mt-8">
+      For questions about this policy, please visit our <a href="{{ url_for('legal.contact') }}" class="text-brand-600 hover:underline">Contact page</a>.
+    </p>
+  </div>
+</div>
+{% endblock %}

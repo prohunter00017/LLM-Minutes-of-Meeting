@@ -7,6 +7,10 @@ Werkzeug
 # Async Task Queue
 celery
 redis
+# kombu's Redis transport imports `packaging` at runtime but does not always
+# declare it as a hard dependency — without it the celery worker crash-loops
+# with "ModuleNotFoundError: No module named 'packaging'".
+packaging
 
 # Environment & Config
 python-dotenv
@@ -27,3 +31,4 @@ ffmpeg-python
 
 # Utilities
 markdown
+stripe>=8.0.0

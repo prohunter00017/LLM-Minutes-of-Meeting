@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sign In | MoM AI</title>
+  <title>Sign In | Intelli Forge Systems</title>
   <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -32,7 +32,7 @@
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
       </div>
-      <h1 class="text-2xl font-bold text-gray-900">MoM AI</h1>
+      <h1 class="text-2xl font-bold text-gray-900">IntelliForge</h1>
       <p class="text-sm text-gray-500 mt-1">AI-powered Minutes of Meeting</p>
     </div>
 
@@ -82,8 +82,9 @@
       </form>
     </div>
 
-    <p class="text-center text-xs text-gray-400 mt-6">
-      Contact your administrator to create an account.
+    <p class="text-center text-sm text-gray-500 mt-6">
+      Don't have an account?
+      <a href="{{ url_for('auth.register') }}" class="text-indigo-600 hover:text-indigo-700 font-medium">Sign up free</a>
     </p>
   </div>
 

@@ -28,6 +28,49 @@ def login():
     return render_template("auth/login.html")
 
 
+@auth_bp.route("/register", methods=["GET", "POST"])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard.index"))
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        confirm = request.form.get("confirm_password", "")
+
+        if not username or not email or not password:
+            flash("All fields are required.", "error")
+            return render_template("auth/register.html")
+
+        if password != confirm:
+            flash("Passwords do not match.", "error")
+            return render_template("auth/register.html")
+
+        if len(password) < 6:
+            flash("Password must be at least 6 characters.", "error")
+            return render_template("auth/register.html")
+
+        if User.query.filter_by(username=username).first():
+            flash("Username already taken.", "error")
+            return render_template("auth/register.html")
+
+        if User.query.filter_by(email=email).first():
+            flash("Email already registered.", "error")
+            return render_template("auth/register.html")
+
+        user = User(username=username, email=email, role="user", is_active=True)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+
+        login_user(user)
+        flash("Account created successfully! Welcome to IntelliForge.", "success")
+        return redirect(url_for("dashboard.index"))
+
+    return render_template("auth/register.html")
+
+
 @auth_bp.route("/logout")
 @login_required
 def logout():

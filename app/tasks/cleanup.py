@@ -1,6 +1,6 @@
 import os
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from app.extensions import celery, db
 from app.models import Meeting
 
@@ -40,4 +40,41 @@ def cleanup_expired_meetings() -> dict:
 
     db.session.commit()
     logger.info("Cleanup: removed %d expired meeting(s)", deleted_count)
+    return {"deleted": deleted_count}
+
+
+@celery.task(name="app.tasks.cleanup.cleanup_demo_meetings")
+def cleanup_demo_meetings() -> dict:
+    """
+    Periodic task (runs every 10 minutes via Celery beat).
+    Deletes demo meeting records older than 1 hour,
+    and removes the associated uploaded files from disk.
+    """
+    from flask import current_app
+
+    now = datetime.now(timezone.utc)
+    cutoff = now - timedelta(hours=1)
+    demos = Meeting.query.filter(
+        Meeting.is_demo == True,  # noqa: E712
+        Meeting.created_at < cutoff,
+        Meeting.deleted_at == None,  # noqa: E711
+    ).all()
+
+    deleted_count = 0
+    upload_folder = current_app.config["UPLOAD_FOLDER"]
+
+    for meeting in demos:
+        file_path = os.path.join(upload_folder, meeting.stored_filename)
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except OSError as exc:
+                logger.warning("Could not remove demo file %s: %s", file_path, exc)
+
+        meeting.deleted_at = now
+        db.session.delete(meeting)
+        deleted_count += 1
+
+    db.session.commit()
+    logger.info("Cleanup: removed %d demo meeting(s)", deleted_count)
     return {"deleted": deleted_count}

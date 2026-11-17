@@ -1,0 +1,17 @@
+# Lightsail low-RAM override (414 MB instance).
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.lightsail.yml up -d --build
+services:
+  celery:
+    # Fewer workers + restart child after 150MB to avoid OOM on small instance
+    command: celery -A celery_worker:celery worker -l info -c 2 --max-memory-per-child 150000
+    mem_limit: 256m
+
+  celery-beat:
+    mem_limit: 96m
+
+  web:
+    mem_limit: 320m
+
+  redis:
+    command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru
+    mem_limit: 96m

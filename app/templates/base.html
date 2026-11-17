@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}MoM AI{% endblock %} | Minutes of Meeting</title>
+  <meta name="description" content="IntelliForge — AI-powered transcription and structured Minutes of Meeting for your team." />
+  <meta name="theme-color" content="#4f46e5" />
+  <title>{% block title %}Dashboard{% endblock %} | Intelli Forge Systems</title>
   <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
 
   <!-- Tailwind CSS -->
@@ -31,7 +33,7 @@
   {% block head %}{% endblock %}
 </head>
 
-<body class="h-full font-sans antialiased" x-data="appShell()" x-cloak>
+<body class="h-full font-sans antialiased app-shell" x-data="appShell()" x-cloak>
 
   <!-- ═══════════════════════ SIDEBAR ═══════════════════════════════════ -->
   <!-- Mobile overlay -->
@@ -55,7 +57,7 @@
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
       </div>
-      <span class="text-base font-semibold text-gray-900">MoM AI</span>
+      <span class="text-base font-semibold text-gray-900">IntelliForge</span>
     </div>
 
     <!-- Navigation -->
@@ -70,12 +72,21 @@
       </a>
 
       <a href="{{ url_for('meetings.list_meetings') }}"
-         class="nav-item {% if request.blueprint == 'meetings' and request.endpoint != 'meetings.upload' %}active{% endif %}">
+         class="nav-item {% if request.blueprint == 'meetings' and request.endpoint not in ['meetings.upload', 'meetings.record'] %}active{% endif %}">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
         </svg>
         <span>Meetings</span>
+      </a>
+
+      <a href="{{ url_for('meetings.record') }}"
+         class="nav-item {% if request.endpoint == 'meetings.record' %}active{% endif %}">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+        </svg>
+        <span>Record Meeting</span>
       </a>
 
       <a href="{{ url_for('meetings.upload') }}"
@@ -108,6 +119,14 @@
         </svg>
         <span>API keys</span>
       </a>
+      <a href="{{ url_for('admin.api_keys_health') }}"
+         class="nav-item {% if request.endpoint == 'admin.api_keys_health' %}active{% endif %}">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+        <span>API health</span>
+      </a>
       <a href="{{ url_for('admin.users') }}"
          class="nav-item {% if request.endpoint in ['admin.users', 'admin.create_user'] %}active{% endif %}">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -116,10 +135,31 @@
         </svg>
         <span>Users</span>
       </a>
+      <a href="{{ url_for('admin.subscriptions') }}"
+         class="nav-item {% if request.endpoint and request.endpoint.startswith('admin.') and 'subscription' in request.endpoint %}active{% endif %}">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+        </svg>
+        <span>Subscriptions</span>
+      </a>
       {% endif %}
+
+      <a href="{{ url_for('billing.index') }}"
+         class="nav-item {% if request.endpoint == 'billing.index' %}active{% endif %}">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+        </svg>
+        <span>Billing</span>
+        {% if current_user.is_authenticated and current_user.plan == 'free' %}
+          <span class="ml-auto text-[10px] font-bold bg-brand-100 text-brand-700 px-1.5 py-0.5 rounded-full">Upgrade</span>
+        {% endif %}
+      </a>
     </nav>
 
     <!-- User footer -->
+    {% if current_user.is_authenticated %}
     <div class="border-t border-gray-100 p-4">
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0">
@@ -138,6 +178,22 @@
         </a>
       </div>
     </div>
+    {% else %}
+    <div class="border-t border-gray-100 p-4 space-y-2">
+      <a href="{{ url_for('auth.login') }}" class="btn-primary w-full inline-flex items-center justify-center gap-2 text-sm">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+        </svg>
+        Log In
+      </a>
+      <a href="{{ url_for('auth.register') }}" class="btn-secondary w-full inline-flex items-center justify-center gap-2 text-sm">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+        </svg>
+        Create Account
+      </a>
+    </div>
+    {% endif %}
   </aside>
 
   <!-- ═══════════════════════ MAIN CONTENT ══════════════════════════════ -->
@@ -150,13 +206,25 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
-      <span class="font-semibold text-gray-900">MoM AI</span>
+      <span class="font-semibold text-gray-900">IntelliForge</span>
     </header>
 
     <!-- Page content -->
     <main class="flex-1 p-6 lg:p-8">
       {% block content %}{% endblock %}
     </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-100 bg-white py-4 px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400">
+        <p>© Intelli Forge Systems</p>
+        <div class="flex items-center gap-4">
+          <a href="{{ url_for('legal.privacy') }}" class="hover:text-gray-600 transition-colors">Privacy</a>
+          <a href="{{ url_for('legal.terms') }}" class="hover:text-gray-600 transition-colors">Terms</a>
+          <a href="{{ url_for('legal.contact') }}" class="hover:text-gray-600 transition-colors">Contact</a>
+        </div>
+      </div>
+    </footer>
   </div>
 
   <!-- ═══════════════════════ TOAST NOTIFICATIONS ══════════════════════ -->

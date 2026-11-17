@@ -33,4 +33,4 @@ class BaseLLMProvider(ABC):
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": f"Transcript:\n\n{transcript}"},
         ]
-        return self.complete(messages)
+        return self.complete(messages, temperature=0.5, max_tokens=4096)

@@ -18,3 +18,4 @@ flask_app = create_app()
 # Import task modules so Celery discovers and registers them
 import app.tasks.process  # noqa: F401, E402
 import app.tasks.cleanup  # noqa: F401, E402
+import app.tasks.billing  # noqa: F401, E402

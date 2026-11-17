@@ -20,6 +20,10 @@ ENV/
 *.env
 !.env.example
 
+# Local-only helper scripts (contain machine-specific paths / credentials)
+scripts/_local/
+*.pem
+
 # Database
 instance/
 *.db

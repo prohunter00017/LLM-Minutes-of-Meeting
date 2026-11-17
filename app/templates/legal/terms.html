@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Terms of Use{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl w-full mx-auto">
+  <h1 class="text-3xl font-bold text-gray-900 mb-6">Terms of Use</h1>
+  <p class="text-sm text-gray-500 mb-8">Last updated: April 2026</p>
+
+  <div class="prose prose-indigo max-w-none">
+    <p class="text-gray-700 mb-4">
+      By accessing or using Intelli Forge Systems (“the Service”), you agree to be bound by these Terms. If you do not agree, you may not use the Service.
+    </p>
+
+    <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-3">1. Service Description</h2>
+    <p class="text-gray-700 mb-4">
+      The Service provides AI-powered speech-to-text transcription and structured meeting summarization. Output quality depends on audio clarity, speaker separation, and the chosen AI provider.
+    </p>
+
+    <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-3">2. Accounts</h2>
+    <p class="text-gray-700 mb-4">
+      You must provide accurate information when registering. You are responsible for maintaining the confidentiality of your credentials and for all activity under your account.
+    </p>
+
+    <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-3">3. Acceptable Use</h2>
+    <ul class="list-disc list-inside text-gray-700 space-y-1 mb-4">
+      <li>You may only upload files you have the legal right to process.</li>
+      <li>You may not attempt to reverse-engineer, scrape, or overload the Service.</li>
+      <li>You may not use the Service for unlawful, defamatory, or harmful purposes.</li>
+    </ul>
+
+    <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-3">4. Subscriptions & Billing</h2>
+    <p class="text-gray-700 mb-4">
+      Paid plans are billed via Stripe. You may cancel at any time; cancellation takes effect at the end of the current billing period. No refunds for partial months unless required by law.
+    </p>
+
+    <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-3">5. Data & Content</h2>
+    <p class="text-gray-700 mb-4">
+      You retain ownership of uploaded content. By uploading, you grant us a temporary license to process it solely for providing the Service. We do not sell or monetize your data.
+    </p>
+
+    <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-3">6. Limitation of Liability</h2>
+    <p class="text-gray-700 mb-4">
+      The Service is provided “as is”. We are not liable for inaccuracies in AI-generated transcripts or summaries, or for data loss beyond our retention guarantees.
+    </p>
+
+    <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-3">7. Termination</h2>
+    <p class="text-gray-700 mb-4">
+      We may suspend or terminate accounts that violate these terms. You may delete your account at any time by contacting support.
+    </p>
+
+    <h2 class="text-xl font-semibold text-gray-900 mt-8 mb-3">8. Governing Law</h2>
+    <p class="text-gray-700 mb-4">
+      These terms are governed by the laws of the jurisdiction in which Intelli Forge Systems operates, without regard to conflict-of-law principles.
+    </p>
+
+    <p class="text-gray-700 mt-8">
+      For questions, please visit our <a href="{{ url_for('legal.contact') }}" class="text-brand-600 hover:underline">Contact page</a>.
+    </p>
+  </div>
+</div>
+{% endblock %}

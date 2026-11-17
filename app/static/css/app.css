@@ -1,5 +1,5 @@
 /* ────────────────────────────────────────────────────────────
-   MoM AI — App Stylesheet
+   IntelliForge — App Stylesheet
    Built on top of Tailwind CDN; these are shared component
    classes kept here to avoid repeating long utility strings.
 ──────────────────────────────────────────────────────────── */
@@ -7,7 +7,7 @@
 [x-cloak] { display: none !important; }
 
 /* ── Layout ──────────────────────────────────────────────── */
-body { display: flex; }
+.app-shell { display: flex; }
 
 /* ── Sidebar navigation items ────────────────────────────── */
 .nav-item {
@@ -192,3 +192,28 @@ select.input-field { appearance: auto; }
 .prose th { background: #f8fafc; padding: 0.5rem 0.75rem; text-align: left; font-weight: 600; color: #374151; border: 1px solid #e5e7eb; }
 .prose td { padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; color: #4b5563; }
 .prose code { background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-size: 0.8125rem; color: #4f46e5; }
+
+/* ── Landing page animations ─────────────────────────────── */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-in-up-delay-1 { animation-delay: 0.1s; }
+.animate-fade-in-up-delay-2 { animation-delay: 0.2s; }
+.animate-fade-in-up-delay-3 { animation-delay: 0.3s; }
+
+/* ── Smooth section reveals with intersection observer support ──── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

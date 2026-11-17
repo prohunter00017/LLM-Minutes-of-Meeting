@@ -1,4 +1,4 @@
-# MoM AI — AI-Powered Minutes of Meeting
+# IntelliForge — AI-Powered Minutes of Meeting
 
 ---
 

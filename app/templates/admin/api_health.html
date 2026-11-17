@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}API Health{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl w-full">
+
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">API Credential Health</h1>
+      <p class="text-sm text-gray-500 mt-1">Live check of every configured third-party credential</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="{{ url_for('admin.api_keys_health', format='json') }}" target="_blank"
+         class="btn-secondary inline-flex items-center gap-2 text-sm">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        JSON
+      </a>
+      <button onclick="location.reload()" class="btn-primary inline-flex items-center gap-2 text-sm">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Re-check
+      </button>
+    </div>
+  </div>
+
+  <div class="space-y-3">
+    {% for r in results %}
+    <div class="card p-4 flex items-start gap-4">
+      <div class="flex-shrink-0 mt-0.5">
+        {% if r.status == 'ok' %}
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-50">
+            <svg class="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </span>
+        {% elif r.status == 'missing' %}
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-amber-50">
+            <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </span>
+        {% else %}
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-50">
+            <svg class="w-4 h-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </span>
+        {% endif %}
+      </div>
+      <div class="min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <p class="font-semibold text-gray-900">{{ r.name }}</p>
+          <span class="px-2 py-0.5 rounded-full text-xs font-medium
+            {% if r.status == 'ok' %}bg-green-50 text-green-700
+            {% elif r.status == 'missing' %}bg-amber-50 text-amber-700
+            {% else %}bg-red-50 text-red-700{% endif %}">
+            {{ r.status | upper }}
+          </span>
+        </div>
+        <p class="text-sm text-gray-500 mt-1 break-words">{{ r.detail }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="card p-4 mt-6 bg-blue-50/50 border-blue-100">
+    <p class="text-sm text-gray-700">
+      <span class="font-semibold">Fixing a failed key:</span>
+      update the value in <code class="text-xs bg-white px-1.5 py-0.5 rounded border border-gray-200">.env</code>,
+      then run <code class="text-xs bg-white px-1.5 py-0.5 rounded border border-gray-200">python scripts/lightsail_deploy.py</code>.
+      The container restart syncs <code class="text-xs bg-white px-1.5 py-0.5 rounded border border-gray-200">.env</code> into the database automatically.
+    </p>
+  </div>
+
+</div>
+{% endblock %}

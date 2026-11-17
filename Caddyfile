@@ -1,0 +1,9 @@
+intelliforgesystems.com {
+    reverse_proxy web:5000
+    encode gzip zstd
+    header {
+        X-Frame-Options DENY
+        X-Content-Type-Options nosniff
+        Referrer-Policy strict-origin-when-cross-origin
+    }
+}

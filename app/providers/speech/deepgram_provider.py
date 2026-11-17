@@ -9,7 +9,7 @@ class DeepgramProvider(BaseSpeechProvider):
         client.listen.v1.media.transcribe_file(request=bytes, **kwargs)
 
     Transcript extraction priority:
-      1. Diarized utterances  → speaker-labelled blocks  (best for MoM)
+      1. Diarized utterances  → speaker-labelled blocks  (best for meeting minutes)
       2. Paragraph transcript → readable formatted text
       3. Raw transcript       → plain string fallback
     """

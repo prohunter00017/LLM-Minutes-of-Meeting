@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ meeting.title }} | Demo | Intelli Forge Systems</title>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#eef2ff', 100:'#e0e7ff', 200:'#c7d2fe', 500:'#6366f1', 600:'#4f46e5', 700:'#4338ca' }
+          },
+          fontFamily: { sans: ['Inter','ui-sans-serif','system-ui','-apple-system','sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}" />
+</head>
+
+<body class="font-sans antialiased min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-10 px-4">
+
+  <div class="max-w-4xl mx-auto">
+    <!-- Top bar -->
+    <div class="flex items-center justify-between mb-8">
+      <a href="{{ url_for('dashboard.index') }}" class="flex items-center gap-2.5">
+        <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <span class="text-lg font-bold text-gray-900">IntelliForge</span>
+      </a>
+      <div class="flex items-center gap-3">
+        <span class="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-full font-medium">Demo — expires in 1 hour</span>
+        <a href="{{ url_for('auth.register') }}" class="text-sm font-medium text-brand-600 hover:text-brand-700">Sign up to save</a>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">{{ meeting.title }}</h1>
+        <p class="text-sm text-gray-400 mt-1">
+          {{ meeting.original_filename }}
+          {% if meeting.file_size %} · {{ (meeting.file_size / 1048576) | round(1) }} MB{% endif %}
+        </p>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <span class="status-badge status-{{ meeting.status }} text-sm px-3 py-1.5" id="detail-status">
+          {% if meeting.status in ['processing','transcribing','summarizing'] %}
+            <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          {% endif %}
+          <span id="status-label">{{ meeting.status | capitalize }}</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Processing progress -->
+    {% if meeting.status not in ['completed', 'failed'] %}
+    <div id="progress-section" class="card p-6 mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-sm font-medium text-gray-700" id="progress-label">
+          {{ meeting.status | capitalize }}…
+        </span>
+        <span class="text-sm text-gray-500" id="progress-pct">{{ meeting.progress }}%</span>
+      </div>
+      <div class="w-full bg-gray-100 rounded-full h-2">
+        <div class="bg-indigo-600 h-2 rounded-full transition-all duration-500"
+             style="width: {{ meeting.progress }}%"
+             id="progress-bar"></div>
+      </div>
+      <p class="text-xs text-gray-400 mt-3">
+        This page updates automatically. Transcription typically takes 1 to 3 minutes.
+      </p>
+    </div>
+    {% endif %}
+
+    <!-- Error message -->
+    {% if meeting.status == 'failed' and meeting.error_message %}
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+      <div class="flex gap-3">
+        <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div>
+          <p class="text-sm font-semibold text-red-700">Processing failed</p>
+          <p class="text-sm text-red-600 mt-1">{{ meeting.error_message }}</p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Results -->
+    {% if meeting.status == 'completed' %}
+    <div x-data="{ tab: 'minutes' }" class="card overflow-hidden">
+      <!-- Tabs -->
+      <div class="flex border-b border-gray-100">
+        <button @click="tab = 'minutes'"
+                :class="tab === 'minutes' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                class="flex-1 py-4 px-4 sm:px-6 text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Minutes
+        </button>
+        <button @click="tab = 'transcript'"
+                :class="tab === 'transcript' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                class="flex-1 py-4 px-4 sm:px-6 text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+          Transcript
+        </button>
+      </div>
+
+      <!-- Minutes -->
+      <div x-show="tab === 'minutes'" class="p-6 lg:p-8">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-900">Minutes of Meeting</h3>
+          <button onclick="copyToClipboard('minutes-content')"
+                  class="btn-secondary text-xs gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            Copy
+          </button>
+        </div>
+        <div id="minutes-content" class="prose prose-sm max-w-none text-gray-700 leading-relaxed">
+          {% if meeting.minutes_of_meeting %}
+            {{ meeting.minutes_of_meeting | safe }}
+          {% else %}
+            <p class="text-gray-400 italic">No minutes generated.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Transcript -->
+      <div x-show="tab === 'transcript'" class="p-6 lg:p-8">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-900">Full Transcript</h3>
+          <button onclick="copyToClipboard('transcript-content')"
+                  class="btn-secondary text-xs gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            Copy
+          </button>
+        </div>
+        <div id="transcript-content"
+             class="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap bg-gray-50 rounded-xl p-4 max-h-[600px] overflow-y-auto font-mono">
+          {{ meeting.transcript or 'No transcript available.' }}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- CTA footer -->
+    <div class="mt-8 text-center">
+      <p class="text-sm text-gray-500 mb-3">Want to keep this meeting and access it anytime?</p>
+      <a href="{{ url_for('auth.register') }}" class="btn-primary inline-flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+        </svg>
+        Create free account
+      </a>
+    </div>
+  </div>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+  {% if meeting.status not in ['completed', 'failed'] %}
+  <script>
+    (function() {
+      const token = '{{ meeting.session_token }}';
+      const terminalStates = ['completed', 'failed'];
+      const interval = setInterval(async () => {
+        try {
+          const resp = await fetch(`/demo/status/${token}`);
+          if (!resp.ok) return;
+          const data = await resp.json();
+
+          const bar = document.getElementById('progress-bar');
+          const pct = document.getElementById('progress-pct');
+          const lbl = document.getElementById('progress-label');
+          if (bar) bar.style.width = data.progress + '%';
+          if (pct) pct.textContent = data.progress + '%';
+          if (lbl) lbl.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1) + '…';
+
+          const statusLabel = document.getElementById('status-label');
+          if (statusLabel) statusLabel.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+
+          if (terminalStates.includes(data.status)) {
+            clearInterval(interval);
+            setTimeout(() => window.location.reload(), 800);
+          }
+        } catch (e) { /* ignore */ }
+      }, 3000);
+    })();
+  </script>
+  {% endif %}
+</body>
+</html>

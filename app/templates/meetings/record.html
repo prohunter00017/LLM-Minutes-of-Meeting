@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+{% block title %}Record Meeting{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl w-full" x-data="voiceRecorder()">
+
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Record Meeting</h1>
+    <p class="text-sm text-gray-500 mt-1">Record audio directly from your microphone and let AI generate minutes automatically.</p>
+  </div>
+
+  <div class="card p-8">
+    <!-- Title input -->
+    <div class="mb-6">
+      <label for="title" class="block text-sm font-medium text-gray-700 mb-1.5">
+        Meeting Title <span class="text-gray-400">(optional)</span>
+      </label>
+      <input type="text" id="title" x-model="title"
+             class="input-field" placeholder="e.g. Weekly Standup, Client Call" />
+      <p class="text-xs text-gray-400 mt-1">Leave blank to use a default title.</p>
+    </div>
+
+    <!-- Recorder card -->
+    <div class="relative rounded-2xl border-2 border-gray-200 bg-gray-50 p-8 text-center transition-colors"
+         :class="isRecording ? 'border-red-300 bg-red-50/40' : (hasRecording ? 'border-indigo-200 bg-indigo-50/30' : '')">
+
+      <!-- Timer -->
+      <div class="mb-4">
+        <p class="text-4xl font-mono font-semibold tracking-wider tabular-nums"
+           :class="isRecording ? 'text-red-600' : 'text-gray-700'"
+           x-text="formatTime(elapsed)">00:00:00</p>
+      </div>
+
+      <!-- Waveform canvas -->
+      <canvas id="waveform" width="500" height="80" class="w-full max-w-md mx-auto mb-6 rounded-lg bg-white/60"></canvas>
+
+      <!-- Status text -->
+      <p class="text-sm font-medium mb-6"
+         :class="isRecording ? 'text-red-600' : (hasRecording ? 'text-indigo-600' : 'text-gray-400')"
+         x-text="statusText">Ready to record</p>
+
+      <!-- Controls -->
+      <div class="flex items-center justify-center gap-3 flex-wrap">
+        <!-- Start -->
+        <button type="button" @click="startRecording()"
+                x-show="!isRecording && !hasRecording"
+                class="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-red-500 rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-red-200">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="6" />
+          </svg>
+          Start Recording
+        </button>
+
+        <!-- Pause / Resume -->
+        <button type="button" @click="togglePause()"
+                x-show="isRecording"
+                class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-colors">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="!isPaused">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6" />
+          </svg>
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="isPaused">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span x-text="isPaused ? 'Resume' : 'Pause'">Pause</span>
+        </button>
+
+        <!-- Stop -->
+        <button type="button" @click="stopRecording()"
+                x-show="isRecording"
+                class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-gray-800 rounded-xl hover:bg-gray-900 transition-colors">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <rect x="6" y="6" width="12" height="12" rx="1" />
+          </svg>
+          Stop
+        </button>
+
+        <!-- Discard -->
+        <button type="button" @click="discardRecording()"
+                x-show="hasRecording && !isRecording"
+                class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          Discard
+        </button>
+
+        <!-- Save & Process -->
+        <button type="button" @click="saveRecording()"
+                x-show="hasRecording && !isRecording && !saving"
+                class="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-brand-600 rounded-xl hover:bg-brand-700 transition-colors shadow-lg shadow-brand-200">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          Save & Process
+        </button>
+
+        <!-- Saving spinner -->
+        <div x-show="saving" class="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-brand-600 bg-brand-50 rounded-xl">
+          <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Uploading…
+        </div>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="bg-blue-50 rounded-xl p-4 mt-6 flex gap-3">
+      <svg class="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <div class="text-sm text-blue-700">
+        <p class="font-medium">Works in any modern browser</p>
+        <p class="mt-0.5 text-blue-600">Audio is recorded locally in your browser and uploaded when you click Save. Make sure your microphone is allowed.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ── Voice Recorder Alpine component ─────────────────────────────
+function voiceRecorder() {
+  return {
+    title: '',
+    isRecording: false,
+    isPaused: false,
+    hasRecording: false,
+    saving: false,
+    elapsed: 0,
+    statusText: 'Ready to record',
+
+    mediaRecorder: null,
+    audioChunks: [],
+    audioContext: null,
+    analyser: null,
+    microphone: null,
+    dataArray: null,
+    timerInterval: null,
+    animationId: null,
+    startTime: 0,
+    pausedAt: 0,
+
+    get canvas() { return document.getElementById('waveform'); },
+    get ctx() { return this.canvas ? this.canvas.getContext('2d') : null; },
+
+    async startRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.microphone = this.audioContext.createMediaStreamSource(stream);
+        this.analyser = this.audioContext.createAnalyser();
+        this.analyser.fftSize = 256;
+        this.microphone.connect(this.analyser);
+
+        const bufferLength = this.analyser.frequencyBinCount;
+        this.dataArray = new Uint8Array(bufferLength);
+
+        // Use webm/opus for best browser compatibility
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+          ? 'audio/webm;codecs=opus'
+          : 'audio/webm';
+
+        this.mediaRecorder = new MediaRecorder(stream, { mimeType });
+        this.audioChunks = [];
+
+        this.mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) this.audioChunks.push(e.data);
+        };
+
+        this.mediaRecorder.onstop = () => {
+          stream.getTracks().forEach(t => t.stop());
+          if (this.audioContext && this.audioContext.state !== 'closed') {
+            this.audioContext.close();
+          }
+        };
+
+        this.mediaRecorder.start(1000); // collect chunks every 1s
+        this.isRecording = true;
+        this.isPaused = false;
+        this.hasRecording = false;
+        this.statusText = 'Recording…';
+        this.startTime = Date.now() - this.pausedAt;
+        this.startTimer();
+        this.drawWaveform();
+      } catch (err) {
+        showToast('Could not access microphone. Please allow microphone permission.', 'error');
+        console.error(err);
+      }
+    },
+
+    togglePause() {
+      if (!this.isRecording) return;
+      if (this.isPaused) {
+        this.mediaRecorder.resume();
+        this.isPaused = false;
+        this.statusText = 'Recording…';
+        this.startTime = Date.now() - this.pausedAt;
+        this.startTimer();
+        this.drawWaveform();
+      } else {
+        this.mediaRecorder.pause();
+        this.isPaused = true;
+        this.statusText = 'Paused';
+        this.pausedAt = Date.now() - this.startTime;
+        clearInterval(this.timerInterval);
+        cancelAnimationFrame(this.animationId);
+        this.clearCanvas();
+      }
+    },
+
+    stopRecording() {
+      if (!this.mediaRecorder) return;
+      this.mediaRecorder.stop();
+      this.isRecording = false;
+      this.isPaused = false;
+      this.hasRecording = true;
+      this.statusText = 'Recording finished — ready to save';
+      clearInterval(this.timerInterval);
+      cancelAnimationFrame(this.animationId);
+      this.clearCanvas();
+    },
+
+    discardRecording() {
+      this.audioChunks = [];
+      this.hasRecording = false;
+      this.elapsed = 0;
+      this.pausedAt = 0;
+      this.statusText = 'Ready to record';
+      this.clearCanvas();
+    },
+
+    async saveRecording() {
+      if (this.audioChunks.length === 0) {
+        showToast('No recording to save.', 'error');
+        return;
+      }
+      this.saving = true;
+      const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
+      const formData = new FormData();
+      formData.append('audio', blob, 'recording.webm');
+      formData.append('title', this.title || 'Recorded Meeting');
+
+      try {
+        const resp = await fetch('/api/v1/recordings', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await resp.json();
+        if (resp.ok && data.meeting_id) {
+          window.location.href = `/meetings/${data.meeting_id}`;
+        } else {
+          showToast(data.error || 'Failed to save recording.', 'error');
+          this.saving = false;
+        }
+      } catch (err) {
+        showToast('Network error while uploading.', 'error');
+        this.saving = false;
+      }
+    },
+
+    startTimer() {
+      clearInterval(this.timerInterval);
+      this.timerInterval = setInterval(() => {
+        this.elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+      }, 250);
+    },
+
+    formatTime(seconds) {
+      const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+      const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+      const s = (seconds % 60).toString().padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    },
+
+    drawWaveform() {
+      if (!this.isRecording || this.isPaused) return;
+      const canvas = this.canvas;
+      const ctx = this.ctx;
+      if (!canvas || !ctx) return;
+
+      const w = canvas.width;
+      const h = canvas.height;
+      this.analyser.getByteFrequencyData(this.dataArray);
+
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = 'rgba(239, 246, 255, 0.6)';
+      ctx.fillRect(0, 0, w, h);
+
+      const barCount = this.dataArray.length;
+      const barWidth = (w / barCount) * 2.5;
+      let x = 0;
+
+      for (let i = 0; i < barCount; i++) {
+        const barHeight = (this.dataArray[i] / 255) * h * 0.8;
+        const r = 99 + (this.dataArray[i] / 255) * 56;
+        const g = 102 + (this.dataArray[i] / 255) * 68;
+        const b = 241;
+        ctx.fillStyle = `rgba(${Math.round(r)}, ${Math.round(g)}, ${b}, 0.85)`;
+        ctx.fillRect(x, (h - barHeight) / 2, barWidth, barHeight);
+        x += barWidth + 1;
+      }
+
+      this.animationId = requestAnimationFrame(() => this.drawWaveform());
+    },
+
+    clearCanvas() {
+      const canvas = this.canvas;
+      const ctx = this.ctx;
+      if (!canvas || !ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    },
+  };
+}
+</script>
+{% endblock %}

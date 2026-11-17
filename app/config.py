@@ -46,6 +46,14 @@ class Config:
     ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin@123")
     ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@example.com")
 
+    # ── Domain / Production ─────────────────────────────────────────────────
+    DOMAIN = os.environ.get("DOMAIN", "localhost:5000")
+    PREFERRED_URL_SCHEME = os.environ.get("PREFERRED_URL_SCHEME", "https")
+
+    # ── Contact ───────────────────────────────────────────────────────────
+    CONTACT_NAME = os.environ.get("CONTACT_NAME", "Hamza Zoubir")
+    CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "")
+
     # ── LLM (OpenAI-compatible) ───────────────────────────────────────────
     LLM_BASE_URL = _LLM_BASE_URL
     LLM_API_KEY = _LLM_API_KEY
@@ -60,3 +68,38 @@ class Config:
 
     # ── Meeting Retention ─────────────────────────────────────────────────
     MEETING_RETENTION_DAYS = int(os.environ.get("MEETING_RETENTION_DAYS", "30"))
+
+    # ── Contact ───────────────────────────────────────────────────────────
+    CONTACT_NAME = os.environ.get("CONTACT_NAME", "Hamza Zoubir")
+    CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "")
+
+    # ── Stripe ────────────────────────────────────────────────────────────
+    STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
+    STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
+    STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+
+    STRIPE_PRICE_STARTER_MONTHLY = os.environ.get("STRIPE_PRICE_STARTER_MONTHLY", "")
+    STRIPE_PRICE_STARTER_YEARLY = os.environ.get("STRIPE_PRICE_STARTER_YEARLY", "")
+    STRIPE_PRICE_PRO_MONTHLY = os.environ.get("STRIPE_PRICE_PRO_MONTHLY", "")
+    STRIPE_PRICE_PRO_YEARLY = os.environ.get("STRIPE_PRICE_PRO_YEARLY", "")
+
+    # ── Plan Tiers ────────────────────────────────────────────────────────
+    PLAN_FREE = {
+        "monthly_uploads": 5,
+        "retention_days": 7,
+        "price_cents": 0,
+        "label": "Free",
+    }
+    PLAN_STARTER = {
+        "monthly_uploads": 25,
+        "retention_days": 30,
+        "price_cents": 900,
+        "label": "Starter",
+    }
+    PLAN_PRO = {
+        "monthly_uploads": 200,
+        "retention_days": 90,
+        "price_cents": 2900,
+        "label": "Pro",
+    }
+    PLANS = {"free": PLAN_FREE, "starter": PLAN_STARTER, "pro": PLAN_PRO}

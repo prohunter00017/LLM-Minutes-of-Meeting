@@ -1,5 +1,5 @@
 /* ────────────────────────────────────────────────────────────
-   MoM AI — App JavaScript
+   IntelliForge — App JavaScript
 ──────────────────────────────────────────────────────────── */
 
 // ── Alpine.js component for the main shell ──────────────────

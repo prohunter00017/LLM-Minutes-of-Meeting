@@ -15,6 +15,16 @@ class User(UserMixin, db.Model):
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
+    # Subscription / billing
+    plan = db.Column(db.String(20), nullable=False, default="free")  # free | starter | pro
+    plan_period_start = db.Column(db.DateTime, nullable=True)
+    plan_uploads_used = db.Column(db.Integer, nullable=False, default=0)
+    plan_is_annual = db.Column(db.Boolean, nullable=False, default=False)
+    subscription_status = db.Column(db.String(20), nullable=False, default="active")  # active | canceled | past_due | unpaid
+    stripe_customer_id = db.Column(db.String(255), nullable=True)
+    stripe_subscription_id = db.Column(db.String(255), nullable=True)
+    stripe_price_id = db.Column(db.String(255), nullable=True)
+
     meetings = db.relationship("Meeting", backref="owner", lazy="dynamic")
 
     def set_password(self, password: str) -> None:
@@ -35,7 +45,7 @@ class Meeting(db.Model):
     __tablename__ = "meetings"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
 
     title = db.Column(db.String(200), nullable=False)
     original_filename = db.Column(db.String(255), nullable=False)
@@ -57,6 +67,10 @@ class Meeting(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     expires_at = db.Column(db.DateTime, nullable=True)
     deleted_at = db.Column(db.DateTime, nullable=True)
+
+    # Demo / guest sessions
+    is_demo = db.Column(db.Boolean, nullable=False, default=False)
+    session_token = db.Column(db.String(64), nullable=True, index=True)
 
     def __repr__(self) -> str:
         return f"<Meeting {self.id}: {self.title} [{self.status}]>"
