@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ meeting.title }} | Demo | Intelli Forge Systems</title>
+  <title>{{ meeting.title }} | Demo | Intelli Forge Systems LLC</title>
   <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -216,5 +216,11 @@
     })();
   </script>
   {% endif %}
+
+  <p class="text-center text-xs text-gray-400 mt-8">
+    &copy; Intelli Forge Systems LLC &middot;
+    <a href="{{ url_for('legal.privacy') }}" class="hover:text-gray-600">Privacy</a> &middot;
+    <a href="{{ url_for('legal.terms') }}" class="hover:text-gray-600">Terms</a>
+  </p>
 </body>
 </html>

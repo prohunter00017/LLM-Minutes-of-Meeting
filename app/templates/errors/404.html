@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex" />
-  <title>Page not found | Intelli Forge Systems</title>
+  <title>Page not found | Intelli Forge Systems LLC</title>
   <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml" />
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -56,6 +56,12 @@
       </a>
     </div>
   </div>
+
+  <p class="text-center text-xs text-gray-400">
+    &copy; Intelli Forge Systems LLC &middot;
+    <a href="{{ url_for('legal.privacy') }}" class="hover:text-gray-600">Privacy</a> &middot;
+    <a href="{{ url_for('legal.terms') }}" class="hover:text-gray-600">Terms</a>
+  </p>
 
 </body>
 </html>
